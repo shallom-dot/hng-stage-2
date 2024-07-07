@@ -28,6 +28,8 @@ class Product {
     );
   }
 
+  
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,
