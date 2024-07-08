@@ -39,7 +39,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('E_Hub')),
+        title: const Center(child: Text('E-Hub')),
         elevation: 0,
       ),
       body: FutureBuilder<List<Product>>(
