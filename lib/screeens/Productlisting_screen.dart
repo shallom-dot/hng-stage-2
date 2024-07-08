@@ -1,25 +1,34 @@
-// product_list_screen.dart
 import 'package:e_hub/models/products_model.dart';
 import 'package:e_hub/services/product_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProductListScreen extends StatefulWidget {
+  const ProductListScreen({super.key});
+
   @override
-  _ProductListScreenState createState() => _ProductListScreenState();
+  State<ProductListScreen> createState() => _ProductListScreenState();
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
   late ProductServices productServices;
   late Future<List<Product>> futureProducts;
 
+  final apiUrl = dotenv.env['API_URL'];
+  final apiKey = dotenv.env['API_KEY'];
+  final organizationId = dotenv.env['ORGANIZATION_ID'];
+  final appId = dotenv.env['APP_ID'];
+  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
+
   @override
   void initState() {
     super.initState();
+    
     productServices = ProductServices(
-      apiUrl: 'https://api.timbu.cloud/products',
-      apiKey: 'e63c3284f77a47d28c2f674703c37f9b20240705204005768030',
-      organizationId: '29d3f12cd51a4ab1ab3c934464d290d3',
-      appId: 'Q31FJS8COU1QAR2',
+      apiUrl: apiUrl!,
+      apiKey: apiKey!,
+      organizationId: organizationId!,
+      appId: appId!,
     );
     futureProducts = productServices.getProducts(page: 1, size: 10);
   }
@@ -30,50 +39,61 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product List'),
+        title: const Center(child: Text('E_Hub')),
+        elevation: 0,
       ),
       body: FutureBuilder<List<Product>>(
         future: futureProducts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No products found.'));
+            return const Center(child: Text('No products found.'));
           } else {
             final products = snapshot.data!;
-            return ListView.builder(
+            return GridView.builder(
+              padding: const EdgeInsets.all(10.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Number of columns in the grid
+                crossAxisSpacing: 10.0, // Horizontal space between items
+                mainAxisSpacing: 10.0, // Vertical space between items
+                childAspectRatio: 2 / 3, // Aspect ratio for each item (width/height)
+              ),
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
+                final url = apiImageUrl! + product.productImage!;
 
                 return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildProductImage(product.productImage!, screenSize),
-                        SizedBox(height: 16),
+                        Expanded(
+                          child: _buildProductImage(url, screenSize),
+                        ),
+                        const SizedBox(height: 16),
                         Text(
                           product.name,
-                          style: TextStyle(
-                            fontSize: 20,
+                          style: const TextStyle(
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           product.description,
-                          style: TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 14),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
-                          '\$${product.sellingPrice.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 18,
+                          '₦ ${product.sellingPrice.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 16,
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
@@ -91,17 +111,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildProductImage(String imageUrl, Size screenSize) {
-    print('Image URL: $imageUrl');
     if (imageUrl.isNotEmpty && Uri.tryParse(imageUrl)?.hasAbsolutePath == true) {
       return Image.network(
         imageUrl,
-        height: screenSize.width * 0.5,
+        height: screenSize.width * 0.4,
         width: double.infinity,
         fit: BoxFit.cover,
       );
     } else {
       return Container(
-        height: screenSize.width * 0.5,
+        height: screenSize.width * 0.4,
         width: double.infinity,
         color: Colors.grey[200],
         child: Icon(

@@ -1,10 +1,12 @@
 // import 'package:e_hub/provider/product_provider.dart';
 import 'package:e_hub/screeens/Productlisting_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import 'package:provider/provider.dart';
 
 
-void main() {
+Future main() async {
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -13,7 +15,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   return MaterialApp(
+   return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: ProductListScreen(),
     );

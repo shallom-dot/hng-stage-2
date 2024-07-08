@@ -24,11 +24,11 @@ class Product {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       productImage: photoUrl,
-      sellingPrice: json['selling_price'] ?? 0.0,
+      sellingPrice: json['current_price'][0]['NGN'][0] ?? 0.0,
     );
   }
 
-  
+
 
   Map<String, dynamic> toJson() {
     return {
